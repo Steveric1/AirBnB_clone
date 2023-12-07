@@ -27,7 +27,7 @@ class BaseModel:
                 del kwargs["__class__"]
 
             for key, value in kwargs.items():
-                if key in ["created_at", "updated_at"] and isinstance(value, str):
+                if key in ["created_at", "updated_at"] and type(value) == str:
                     kwargs[key] = self.str_to_d_time(value)
 
             self.__dict__.update(kwargs)
@@ -81,4 +81,3 @@ class BaseModel:
             'created_at': self.dt_format(self.created_at),
             'updated_at': self.dt_format(self.updated_at)
         }
-
