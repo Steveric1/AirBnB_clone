@@ -20,6 +20,9 @@ class BaseModel:
         """
         Initializes BaseModel instance.
         """
+        self.updated_at = self.dt.now()
+        self.id = str(self.unique_key.uuid4())
+        self.created_at = self.dt.now()
 
         if kwargs:
             if "__class__" in kwargs:
