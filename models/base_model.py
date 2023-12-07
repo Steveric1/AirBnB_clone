@@ -28,33 +28,25 @@ class BaseModel:
                 setattr(self, key, value)
 
             if "updated_at" in kwargs:
-                self.convert_updated_at(kwargs)
+                self.convert_dt_attr(kwargs['updated_at'], 'updated_at')
             if "created_at" in kwargs:
-                self.convert_created_at(kwargs)
+                self.convert_dt_attr(kwargs['created_at'], 'created_at')
         else:
             self.updated_at = self.dt.now()
             self.id = str(self.unique_key.uuid4())
             self.created_at = self.dt.now()
 
-    def convert_updated_at(self, kwargs):
+    def convert_dt_attr(self, attr_value, attr_name):
         """updated_at conversion from string to datetime object"""
         try:
-            self.updated_at = self.dt.strptime(
-                kwargs['updated_at'], "%Y-%m-%dT%H:%M:%S.%f"
+            setattr(
+                self,
+                attr_name,
+                self.dt.strptime(attr_value, "%Y-%m-%dT%H:%M:%S.%f")
             )
-            return self.updated_at
+            return getattr(self, attr_name)
         except ValueError:
             raise ValueError("invalid string or format")
-
-    def convert_created_at(self, kwargs):
-        """created_at conversion from string to datetime object"""
-        try:
-            self.created_at = self.dt.strptime(
-                kwargs['created_at'], "%Y-%m-%dT%H:%M:%S.%f"
-            )
-            return self.created_at
-        except ValueError:
-            raise ValueError("Invalid string or format")
 
     def to_json(self):
         return json.dumps(self.to_dict(), indent=4)
