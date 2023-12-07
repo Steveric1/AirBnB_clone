@@ -38,17 +38,23 @@ class BaseModel:
 
     def convert_updated_at(self, kwargs):
         """updated_at conversion from string to datetime object"""
-        self.updated_at = self.dt.strptime(
-            kwargs['updated_at'], "%Y-%m-%dT%H:%M:%S.%f"
+        try:
+            self.updated_at = self.dt.strptime(
+                kwargs['updated_at'], "%Y-%m-%dT%H:%M:%S.%f"
             )
-        return self.updated_at
+            return self.updated_at
+        except ValueError:
+            raise ValueError("invalid string or format")
 
     def convert_created_at(self, kwargs):
         """created_at conversion from string to datetime object"""
-        self.created_at = self.dt.strptime(
-            kwargs['created_at'], "%Y-%m-%dT%H:%M:%S.%f"
+        try:
+            self.created_at = self.dt.strptime(
+                kwargs['created_at'], "%Y-%m-%dT%H:%M:%S.%f"
             )
-        return self.created_at
+            return self.created_at
+        except ValueError:
+            raise ValueError("Invalid string or format")
 
     def to_json(self):
         return json.dumps(self.to_dict(), indent=4)
@@ -78,6 +84,7 @@ class BaseModel:
                 'updated_at': self.dt_format(self.updated_at)
                 }
 
+
 my_model = BaseModel()
 my_model.name = "My_First_Model"
 my_model.my_number = 89
@@ -89,7 +96,8 @@ my_model_json = my_model.to_dict()
 print(my_model_json)
 print("JSON of my_model:")
 for key in my_model_json.keys():
-    print("\t{}: ({}) - {}".format(key, type(my_model_json[key]), my_model_json[key]))
+    print("\t{}: ({}) - {}".format(key, type(my_model_json[key]),
+                                   my_model_json[key]))
 
 print("--")
 my_new_model = BaseModel(**my_model_json)
