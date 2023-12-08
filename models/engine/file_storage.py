@@ -16,9 +16,10 @@ class FileStorage:
             json.dump(serialized_obj, file)
 
     def reload(self):
-        if self.__file_path:
-            with open(self.__file_path, 'r') as file:
-               contents =  json.load(file)
-                return contents
-        except FileNotFoundError
+        try:
+            if self.__file_path:
+                with open(self.__file_path, 'r') as file:
+                    deserialize = json.load(file)
+                return deserialize
+        except FileNotFoundError:
             pass
