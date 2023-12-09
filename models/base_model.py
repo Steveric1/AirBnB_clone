@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/python3
 
 import uuid
 from datetime import datetime
-import json
+import models
 
 """
 AirBnb BaseModel
@@ -35,6 +35,7 @@ class BaseModel:
             self.updated_at = self.dt.now()
             self.id = str(self.unique_key.uuid4())
             self.created_at = self.dt.now()
+            models.storage.new(self)
 
     def convert_dt_attr(self, attr_value, attr_name):
         """updated_at conversion from string to datetime object"""
@@ -60,6 +61,7 @@ class BaseModel:
         """updates the public instance attribute updated_at
         with the current datetime"""
         self.updated_at = self.dt.now()
+        models.storage.save()
 
     def dt_format(self, d_time):
         """datetime format method"""
@@ -75,27 +77,3 @@ class BaseModel:
                 'created_at': self.dt_format(self.created_at),
                 'updated_at': self.dt_format(self.updated_at)
                 }
-
-
-my_model = BaseModel()
-my_model.name = "My_First_Model"
-my_model.my_number = 89
-print(my_model.id)
-print(my_model)
-print(type(my_model.created_at))
-print("--")
-my_model_json = my_model.to_dict()
-print(my_model_json)
-print("JSON of my_model:")
-for key in my_model_json.keys():
-    print("\t{}: ({}) - {}".format(key, type(my_model_json[key]),
-                                   my_model_json[key]))
-
-print("--")
-my_new_model = BaseModel(**my_model_json)
-print(my_new_model.id)
-print(my_new_model)
-print(type(my_new_model.created_at))
-
-print("--")
-print(my_model is my_new_model)
