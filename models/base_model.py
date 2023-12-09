@@ -49,8 +49,11 @@ class BaseModel:
         except ValueError:
             raise ValueError("invalid string or format")
 
-    def to_json(self):
-        return json.dumps(self.to_dict(), indent=4)
+    def __repr__(self):
+        """
+        returns string repr
+        """
+        return (self.__str__())
 
     def __str__(self):
         """String Representation"""
