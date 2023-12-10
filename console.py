@@ -98,20 +98,28 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, args):
         """all method"""
         my_args = args.split()
-        all_inst = []
+        all_inst = storage.all()
 
-        if len(my_args) > 0 and my_args[0] not in HBNBCommand.__classes:
-            print("** class name doesn't exist **")
-        else:
-            all_inst = []
-            for all_instance in storage.all().values():
-                if (len(my_args) > 0 and
-                        my_args[0] == all_instance.__class__.__name__):
-                    all_inst.append(all_instance.__str__())
-
-                elif len(my_args) == 0:
-                    all_inst.append(all_instance.__str__())
+        if not my_args or my_args[0] not in HBNBCommand.__classes:
             print(all_inst)
+            return
+
+        if my_args[0] not in HBNBCommand.__classes:
+            print("** class name doesn't exist **")
+            return
+
+        all_instances = storage.all()
+        class_name = my_args[0]
+
+        for all_instance in all_instances.values():
+            if (len(my_args) > 0 and
+                    class_name == all_instance.__class__.__name__):
+                all_inst.append(all_instance.__str__())
+
+            elif len(my_args) == 0:
+                all_inst.append(all_instance.__str__())
+
+        print(all_inst)
 
     def do_update(self, arg):
         """Updates an instance"""
