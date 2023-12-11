@@ -9,4 +9,4 @@ class Amenity(BaseModel):
     Public class attributes:
         name:     (str)
     """
-    name = ""
+    name: str = ""
