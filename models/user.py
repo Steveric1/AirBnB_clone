@@ -7,9 +7,6 @@ import json
 class User(BaseModel):
     '''subclass of BaseModel class'''
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
     email = ""
     password = ""
     first_name = ""
