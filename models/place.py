@@ -3,6 +3,7 @@
 from models.base_model import BaseModel
 from typing import List
 
+
 class Place(BaseModel):
     """
     A subclass of BaseModel class
