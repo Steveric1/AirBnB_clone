@@ -51,7 +51,6 @@ class FileStorage:
     def reload(self):
         """Retrieving -> Deserialized json (string) to object (dictionary)"""
         try:
-
             with open(self.__file_path, 'r', encoding="UTF-8") as file:
                 deserialized = json.load(file)
             for key, value in deserialized.items():
