@@ -1,6 +1,7 @@
 #!/usr/bin/python3
-"""file storage for AirBnB Clone Project"""
+"""Defines the FileStorage class."""
 import json
+from os import path
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -11,50 +12,48 @@ from models.review import Review
 
 
 class FileStorage:
+    """It represents an abstract storage engine.
 
-    """ This is the storage for the AirBnB Clone Project
-    class Methods:
-        all: Return the dictionary object
-        new: Set in object with the key id
-        save: Serialize object dictionary to json string
-        reload: Desserialize json to objec dictionary
-
-    class Attribute:
-        __file_path: string - path to the JSON file (ex: file.json)
-        __objects: dictionary - store object dictionary
+    Attributes:
+        __file_path (str): Name of the file to save objects to
+        __objects (dict): Dictionary of the instances of object.
     """
     __file_path = "file.json"
     __objects = {}
-    class_dict = {"BaseModel": BaseModel, "User": User, "State": State,
-                  "City": City, "Amenity": Amenity, "Place": Place,
-                  "Review": Review}
+    cls_dict = {"BaseModel": BaseModel, "User": User, "State": State,
+                "City": City, "Amenity": Amenity, "Place": Place,
+                "Review": Review}
 
     def all(self):
-        """Return the dictionary object"""
+        """Returns the dictionary objects."""
         return self.__objects
 
     def new(self, obj):
-        """Creating dictionary from an existing object"""
-        if obj:
-            key = '{}.{}'.format(obj.__class__.__name__, obj.id)
-            self.__objects[key] = obj
+        """Sets in __objects the obj with key <obj class name>.id."""
+        prm_key = f"{obj.__class__.__name__}.{obj.id}"
+        self.__objects[prm_key] = obj
 
     def save(self):
-        """Save/serialize obj dictionaries to json file"""
-        serialized_obj = {}
+        """Serializes __objects to the JSON file (path: __file_path)"""
+        objects_serialized = {}
+        for prm_key, obj in self.__objects.items():
+            objects_serialized[prm_key] = obj.to_dict()
 
-        for key, value in self.__objects.items():
-            serialized_obj[key] = value.to_dict()
-        with open(self.__file_path, "w", encoding="UTF-8") as file:
-            json.dump(serialized_obj, file)
+        with open(self.__file_path, 'w') as file:
+            json.dump(objects_serialized, file)
 
     def reload(self):
-        """Retrieving -> Deserialized json (string) to object (dictionary)"""
+        """
+        Deserializes the JSON file to __objects.
+        Only if the JSON file (__file_path) exists; otherwise, do nothing.
+        If the file does not exist, no exception should be raised.
+        """
         try:
-            with open(self.__file_path, 'r', encoding="UTF-8") as file:
-                deserialized = json.load(file)
-            for key, value in deserialized.items():
-                obj = self.class_dict[value['__class__']](**value)
-                self.__objects[key] = obj
+            if self.__file_path:
+                with open(self.__file_path) as f:
+                    deserialized = json.load(f)
+                for key, val in deserialized.items():
+                    object = self.cls_dict[val['__class__']](**val)
+                    self.__objects[key] = object
         except FileNotFoundError:
             pass
