@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
+import models
 import uuid
 from datetime import datetime
-import models
 
 """
 AirBnb BaseModel
