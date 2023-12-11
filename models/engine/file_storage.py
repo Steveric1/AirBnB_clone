@@ -26,7 +26,7 @@ class FileStorage:
     __file_path = "file.json"
     __objects = {}
     class_dict = {"BaseModel": BaseModel, "User": User, "State": State,
-                  "City": City, "Amenity": Amenity, "Place": Place, 
+                  "City": City, "Amenity": Amenity, "Place": Place,
                   "Review": Review}
 
     def all(self):
@@ -35,8 +35,9 @@ class FileStorage:
 
     def new(self, obj):
         """Creating dictionary from an existing object"""
-        key = '{}.{}'.format(obj.__class__.__name__, obj.id)
-        self.__objects[key] = obj
+        if obj:
+            key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+            self.__objects[key] = obj
 
     def save(self):
         """Save/serialize obj dictionaries to json file"""
@@ -44,17 +45,17 @@ class FileStorage:
 
         for key, value in self.__objects.items():
             serialized_obj[key] = value.to_dict()
-        with open(self.__file_path, "w") as file:
+        with open(self.__file_path, "w", encoding="UTF-8") as file:
             json.dump(serialized_obj, file)
 
     def reload(self):
         """Retrieving -> Deserialized json (string) to object (dictionary)"""
         try:
-            if self.__file_path:
-                with open(self.__file_path, 'r') as file:
-                    deserialized = json.load(file)
-                for key, value in deserialized.items():
-                    obj = self.class_dict[value['__class__']](**value)
-                    self.__objects[key] = obj
+
+            with open(self.__file_path, 'r', encoding="UTF-8") as file:
+                deserialized = json.load(file)
+            for key, value in deserialized.items():
+                obj = self.class_dict[value['__class__']](**value)
+                self.__objects[key] = obj
         except FileNotFoundError:
             pass

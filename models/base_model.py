@@ -20,9 +20,9 @@ class BaseModel:
         """
         Initializes BaseModel instance.
         """
-        self.updated_at = self.dt.now()
-        self.id = str(self.unique_key.uuid4())
-        self.created_at = self.dt.now()
+        # self.updated_at = self.dt.now()
+        # self.id = str(self.unique_key.uuid4())
+        # self.created_at = self.dt.now()
 
         if kwargs:
             if "__class__" in kwargs:
@@ -35,15 +35,15 @@ class BaseModel:
             self.__dict__.update(kwargs)
         else:
             self.updated_at = self.dt.now()
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
+            self.id = str(self.unique_key.uuid4())
+            self.created_at = self.dt.now()
             models.storage.new(self)
-            
+
     def __str__(self):
         """String Representation"""
         class_name = __class__.__name__
         return f"[{class_name}] ({self.id}) {self.__dict__}"
-    
+
     def __repr__(self):
         """
         returns string repr

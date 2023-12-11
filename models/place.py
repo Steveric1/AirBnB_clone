@@ -2,6 +2,7 @@
 
 from models.base_model import BaseModel
 
+
 class Place(BaseModel):
     """
     A subclass of BaseModel class
@@ -29,4 +30,3 @@ class Place(BaseModel):
     price_by_night = 0
     latitude = 0.0
     amenity_ids = []
-    

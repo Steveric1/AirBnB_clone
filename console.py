@@ -43,16 +43,39 @@ class HBNBCommand(cmd.Cmd):
         """Empty line + enter implementation of doing nothing"""
         pass
 
-    def do_create(self, arg):
-        my_args = arg.split()
-        if not arg:
+    def do_create(self, line):
+        """Usage: create <class> <key 1>=<value 2> <key 2>=<value 2> ...
+        Create a new class instance with given keys/values and print its id.
+        """
+        try:
+            if not line:
+                raise SyntaxError()
+            my_list = line.split(" ")
+
+            kwargs = {}
+            for i in range(1, len(my_list)):
+                key, value = tuple(my_list[i].split("="))
+                if value[0] == '" "':
+                    value = value.strip('" "').replace("_", " ")
+                else:
+                    try:
+                        value = eval(value)
+                    except (SyntaxError, NameError):
+                        continue
+                kwargs[key] = value
+
+            if kwargs == {}:
+                obj = eval(my_list[0])()
+            else:
+                obj = eval(my_list[0])(**kwargs)
+                storage.new(obj)
+            print(obj.id)
+            obj.save()
+
+        except SyntaxError:
             print("** class name missing **")
-        elif my_args[0] not in HBNBCommand.__classes:
+        except NameError:
             print("** class doesn't exist **")
-        else:
-            new_inst = eval(my_args[0])()
-            new_inst.save()
-            print(new_inst.id)
 
     def do_show(self, arg):
         """Show created id"""
@@ -98,28 +121,18 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, args):
         """all method"""
         my_args = args.split()
-        all_inst = storage.all()
 
-        if not my_args or my_args[0] not in HBNBCommand.__classes:
-            print(all_inst)
-            return
-
-        if my_args[0] not in HBNBCommand.__classes:
+        if len(my_args) > 0 and my_args[0] not in HBNBCommand.__classes:
             print("** class name doesn't exist **")
-            return
+        else:
+            all_inst = []
 
-        all_instances = storage.all()
-        class_name = my_args[0]
-
-        for all_instance in all_instances.values():
-            if (len(my_args) > 0 and
-                    class_name == all_instance.__class__.__name__):
-                all_inst.append(all_instance.__str__())
-
-            elif len(my_args) == 0:
-                all_inst.append(all_instance.__str__())
-
-        print(all_inst)
+            for i in storage.all().values():
+                if (len(my_args) > 0 and my_args[0] == i.__class__.__name__):
+                    all_inst.append(i.__str__())
+                elif len(my_args) == 0:
+                    all_inst.append(i.__str__())
+            print(all_inst)
 
     def do_update(self, arg):
         """Updates an instance"""
