@@ -2,6 +2,7 @@
 
 """Air bnb clone command interpreter"""
 import cmd
+import re
 from models.base_model import BaseModel
 from models import storage
 from models.user import User
@@ -27,6 +28,28 @@ class HBNBCommand(cmd.Cmd):
         "Review"
     }
 
+    def default(self, args):
+        """The default behaviour of console"""
+        args_dict = {
+            "all": self.do_all,
+            "create": self.do_create,
+            "show": self.do_show,
+            "destroy": self.do_destroy,
+            "update": self.do_update
+        }
+
+        match = re.search(r"\.", args)
+        if match is not None:
+            arg_1 = [args[:match.span()[0]], args[match.span()[1]:]]
+            match = re.search(r"\((.*?)\)", arg_1[1])
+            if match is not None:
+                command = [arg_1[1][:match.span()[0]], match.group()[1:-1]]
+                if command[0] in args_dict.keys():
+                    cmd_call = "{} {}".format(arg_1[0], command[1])
+                    return args_dict[command[0]](cmd_call)
+                print("*** Unknown syntax: {}".format(arg_1))
+        return False
+
     def do_quit(self, arg):
         """Quit command to exit the program"""
         return True
@@ -43,18 +66,6 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         """Empty line + enter implementation of doing nothing"""
         pass
-
-    # def do_create(self, line):
-    #     """Creates a new instance of BaseModel and saves it to json file"""
-    #     args = line.split()
-    #     if not args[0]:
-    #         print("** class name missing **")
-    #     elif args[0] not in HBNBCommand.__classes:
-    #         print("** class doesn't exist **")
-    #     else:
-    #         instance = eval(args[0])()
-    #         instance.save()
-    #         print(instance.id)
 
     def do_create(self, line):
         """Usage: create <class> <key 1>=<value 2> <key 2>=<value 2> ...
