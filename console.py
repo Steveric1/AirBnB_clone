@@ -4,6 +4,7 @@
 import cmd
 import re
 from models.base_model import BaseModel
+from models.arg_format import arg_parse
 from models import storage
 from models.user import User
 from models.state import State
@@ -35,7 +36,8 @@ class HBNBCommand(cmd.Cmd):
             "create": self.do_create,
             "show": self.do_show,
             "destroy": self.do_destroy,
-            "update": self.do_update
+            "update": self.do_update,
+            "count": self.do_count
         }
 
         match = re.search(r"\.", args)
@@ -123,7 +125,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, arg):
         """Delete method"""
-        my_args = arg.split()
+        my_args = arg_parse(arg)
         create_inst = storage.all()
         try:
             if not arg:
@@ -144,7 +146,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, args):
         """all method"""
-        my_args = args.split()
+        my_args = arg_parse(args)
 
         if len(my_args) > 0 and my_args[0] not in HBNBCommand.__classes:
             print("** class name doesn't exist **")
@@ -158,51 +160,63 @@ class HBNBCommand(cmd.Cmd):
                     all_inst.append(i.__str__())
             print(all_inst)
 
+    def do_count(self, arg):
+        """Count the number of instance"""
+        my_args = arg_parse(arg)
+        count = 0
+
+        for obj in storage.all().values():
+            if my_args[0] == obj.__class__.__name__:
+                count += 1
+        print(count)
+
     def do_update(self, arg):
         """Updates an instance"""
-        my_args = arg.split()
-        if not arg:
-            print("** class name missing **")
-            return
-
-        _class = my_args[0]
-        if _class not in HBNBCommand.__classes:
-            print("** class doesn't exist **")
-            return
-
-        if len(my_args) < 2:
-            print("** instance id missing **")
-            return
-
-        inst_id = my_args[1]
-        keys = "{}.{}".format(_class, inst_id)
+        my_args = arg_parse(arg)
         all_inst = storage.all()
 
-        if keys not in all_inst:
+        if arg == 0:
+            print("** class name missing **")
+            return False
+        if my_args[0] not in HBNBCommand.__classes:
+            print("** class doesn't exist **")
+            return False
+        if len(my_args) < 2:
+            print("** instance id missing **")
+            return False
+        keys = "{}.{}".format(my_args[0], my_args[1])
+        if keys not in all_inst.keys():
             print("** no instance found **")
-            return
-
-        if len(my_args) < 3:
+            return False
+        if len(my_args) == 2:
             print("** attribute name missing **")
             return
 
-        attr_name = my_args[2]
-        if len(my_args) < 4:
-            print("** value missing **")
-            return
-
-        value = my_args[3]
-
-        _inst = all_inst[keys]
-        if hasattr(_inst, attr_name):
-            attr_type = type(getattr(_inst, attr_name))
+        if len(my_args) == 3:
             try:
-                setattr(_inst, attr_name, attr_type(value))
-                _inst.save()
-            except (ValueError, TypeError):
-                print("** invalid value **")
+                type(eval(my_args[2])) != dict
+            except NameError:
+                print("** value missing **")
+                return False
+
+        if len(my_args) == 4:
+            obj = all_inst["{}.{}".format(my_args[0], my_args[1])]
+            if my_args[2] in obj.__class__.__dict__.keys():
+                valtype = type(obj.__class__.__dict__[my_args[2]])
+                obj.__dict__[my_args[2]] = valtype(my_args[3])
+            else:
+                obj.__dict__[my_args[2]] = my_args[3]
+        elif type(eval(my_args[2])) == dict:
+            obj = all_inst["{}.{}".format(my_args[0], my_args[1])]
+            for k, v in eval(my_args[2]).items():
+                if (k in obj.__class__.__dict__.keys() and
+                    type(obj.__class__.__dict__[k]) in {str, int, float}):
+                    valtype = type(obj.__class__.__dict__[k])
+                    obj.__dict__[k] = valtype(v)
         else:
-            print("** attribute doesn't exist **")
+            obj.__dict__[k] = v
+
+        storage.save()
 
 
 if __name__ == '__main__':
