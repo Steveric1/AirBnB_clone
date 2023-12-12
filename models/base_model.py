@@ -37,9 +37,12 @@ class BaseModel:
             models.storage.new(self)
 
     def __str__(self):
-        """String Representation"""
-        class_name = __class__.__name__
-        return "[{}] ({}) {}".format(class_name, self.id, self.__dict__)
+        """
+        Return class name, id, and the dictionary
+        """
+        return ('[{}] ({}) {}'.
+                format(self.__class__.__name__, self.id, self.__dict__))
+
 
     def __repr__(self):
         """
